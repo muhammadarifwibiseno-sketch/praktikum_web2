@@ -1,0 +1,127 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('List Book') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="flex justify-end m-4">
+                    <x-primary-button
+                        class="mx-1"
+                        x-data=""
+                        x-on:click.prevent="$dispatch('open-modal', 'import-book')"
+                    >Import Book</x-primary-button>
+
+                    <x-primary-button tag="a" href="{{ route('book.export') }}" class="mx-1" target="_blank">
+                        Export Book
+                    </x-primary-button>
+                    <x-primary-button tag="a" href="{{ route('book.print') }}" class="mx-1" target="_blank">
+                        Print Book
+                    </x-primary-button>
+                    <x-primary-button tag="a" href="{{ route('book.create') }}" class="mx-1">
+                        Add Book
+                    </x-primary-button>
+
+                    <form class="d-flex align-items-center gap-2">
+                        <div class="input-group input-group-sm" width="250px">
+                            <input name="keyword" type="text" class="form-control" placeholder="Cari data">
+                            <button class="btn btn-sm btn-success" type="submit">Cari</button>
+                        </div>
+                    </form>
+
+                </div>
+                <x-table>
+                    <x-slot name="head">
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Year</th>
+                        <th>Publisher</th>
+                        <th>City</th>
+                        <th>Cover</th>
+                        <th>Bookshelf</th>
+                        <th>Actions</th>
+                    </x-slot>
+                    <x-slot name="body">
+                        @foreach ($books as $book)
+                            <tr>
+                                <td>{{ $book->title }}</td>
+                                <td>{{ $book->author }}</td>
+                                <td>{{ $book->year }}</td>
+                                <td>{{ $book->publisher }}</td>
+                                <td>{{ $book->city }}</td>
+                                <td>
+                                    <img src="{{ asset('storage/cover_buku/'. $book->cover) }}" alt="cover" width="100px">
+                                    
+                                </td>
+                                <td>{{ $book->bookshelf->name}}</td>
+                                <td>
+                                    <x-primary-button tag="a" href="{{ route('book.edit', $book->id) }}">Edit</x-primary-button>
+                                    <x-danger-button
+                                        x-data=""
+                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-book-deletion')"
+                                        x-on:click="$dispatch('set-action', '{{ route('book.destroy', $book->id) }}')"
+                                    >Delete</x-danger-button>
+
+                                </td>
+                            </tr>
+                        @endforeach
+                    </x-slot>
+                </x-table>
+            </div>
+        </div>
+    </div>
+    
+    <x-modal name="confirm-book-deletion" focusable maxWidth="xl">
+        <form method="post" x-bind:action="action" class="p-6">
+            @csrf
+            @method('delete')
+                        
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                {{ __('Apakah anda yakin akan menghapus data?') }}
+            </h2>
+                        
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                {{ __('Setelah proses dilaksanakan. Data akan dihilangkan secara permanen.') }}
+            </p>
+                        
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+                        
+                <x-danger-button class="ml-3">
+                    {{ __('Delete!!!') }}
+                </x-danger-button>
+            </div>
+        </form>
+        </x-modal>
+
+    <x-modal name="import-book" focusable maxWidth="xl">
+        <form method="post" action="{{ route('book.import') }}" class="p-6" enctype="multipart/form-data">
+        @csrf
+                    
+        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ __('Import Data Buku') }}
+        </h2>
+
+        <div class="max-w-xl">
+            <x-input-label for="cover" class="sr-only" value="File Import"/>
+            <x-file-input id="cover" name="file" class="mt-1 block w-full" required/>
+        </div>
+                    
+        <div class="mt-6 flex justify-end">
+            <x-secondary-button x-on:click="$dispatch('close')">
+                {{ __('Cancel') }}
+            </x-secondary-button>
+                    
+            <x-primary-button class="ml-3">
+                {{ __('Upload') }}
+            </x-primary-button>
+        </div>
+        </form>
+    </x-modal>
+
+</x-app-layout>
